@@ -1,0 +1,9 @@
+{
+  "name": "monkey",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "main": "esr src/main.ts"
+  }
+}
