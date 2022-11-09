@@ -4,6 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "main": "esr src/main.ts"
+    "main": "esr src/main.ts",
+    "repl": "esr src/repl.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9"
   }
 }
