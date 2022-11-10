@@ -5,7 +5,7 @@ export const SingleCharTokens = {
   "+": "PLUS",
   "-": "MINUS",
   "!": "BANG",
-  "*": "ASTERIX",
+  "*": "ASTERISK",
   "/": "SLASH",
   "<": "LT",
   ">": "GT",

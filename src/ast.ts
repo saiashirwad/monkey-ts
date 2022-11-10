@@ -1,55 +1,86 @@
 import { Token } from "./token";
 
-export type Node = {};
-
-export type Expression = any;
-
 export class Program {
   statements: Statement[] = [];
 
   constructor() {}
 }
 
-export type Identifier = {
-  token: Token;
-  value: string;
-};
+// Expressions
 
-export type IntegerLiteral = {
+export type IntegerLiteralExpression = {
+  type: "integer";
   token: Token;
   value: number;
 };
 
-export type LetStatement = {
-  type: "LET";
-  token: Token;
-  name: Identifier;
-  value: Expression;
-};
-
-export type ReturnStatement = {
-  type: "RETURN";
-  token: Token;
-  returnValue: Expression;
-};
-
-export type ExpressionStatement = {
-  type: "EXPRESSION";
-  token: Token;
-  expression: Expression;
-};
-
-export type Statement = LetStatement | ReturnStatement | ExpressionStatement;
-
 export type PrefixExpression = {
+  type: "prefix";
   token: Token;
   operator: string;
   right: Expression;
 };
 
 export type InfixExpression = {
+  type: "infix";
   token: Token;
   left: Expression;
   operator: string;
   right: Expression;
 };
+
+export type IdentifierExpression = {
+  type: "identifier";
+  token: Token;
+  value: string;
+};
+
+export type BooleanExpression = {
+  type: "boolean";
+  token: Token;
+  value: boolean;
+};
+
+export type IfExpression = {
+  type: "if";
+  token: Token;
+  condition: Expression;
+  consequence: BlockStatement;
+  alternative?: BlockStatement;
+};
+
+export type Expression =
+  | IdentifierExpression
+  | IntegerLiteralExpression
+  | PrefixExpression
+  | InfixExpression
+  | BooleanExpression
+  | IfExpression;
+
+// Statements
+
+export type BlockStatement = {
+  type: "block";
+  statements: Statement[];
+};
+
+export type LetStatement = {
+  type: "let";
+  token: Token;
+  name: IdentifierExpression;
+  value?: Expression;
+};
+
+export type ReturnStatement = {
+  type: "return";
+  token: Token;
+  returnValue: Expression;
+};
+
+export type ExpressionStatement = {
+  type: "expression";
+  token: Token;
+  expression: Expression;
+};
+
+export type Statement = LetStatement | ReturnStatement | ExpressionStatement;
