@@ -17,6 +17,7 @@ export const SingleCharTokens = {
   "}": "RBRACE",
 } as const;
 export type SingleCharToken = keyof typeof SingleCharTokens;
+export type SingleCharTokenType = ValueOf<typeof SingleCharTokens>;
 
 export const DoubleCharTokens = {
   "==": "EQ",

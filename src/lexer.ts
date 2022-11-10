@@ -30,7 +30,7 @@ export class Lexer {
   }
 
   nextToken() {
-    let tok: Token | undefined = undefined; // TODO: refactor to use fp-ts?
+    let tok: Token = { type: 'ILLEGAL', literal: '' }; // TODO: refactor to use fp-ts?
     this.skipWhitespace();
 
     if (isSingleCharToken(this.ch)) {
