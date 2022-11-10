@@ -1,3 +1,5 @@
+import * as O from "fp-ts/Option";
+import { pipe } from "fp-ts/function";
 import {
   BlockStatement,
   BooleanExpression,

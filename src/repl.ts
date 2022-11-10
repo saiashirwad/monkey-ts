@@ -1,5 +1,7 @@
+import util from "util";
 import readline from "readline";
 import { Lexer } from "./lexer";
+import { Parser } from "./parser";
 
 async function* questions(query: string) {
   const rl = readline.createInterface({
@@ -20,10 +22,12 @@ export const startRepl = async () => {
   for await (const answer of questions(">")) {
     const input = answer as string;
     const lexer = new Lexer(input);
-    while (lexer.readPosition < input.length) {
-      let tok = lexer.nextToken();
-      console.log(tok);
+    const parser = new Parser(lexer);
+    const program = parser.parse();
+    if (parser.errors.length > 0) {
+      console.log(parser.errors.join("\n"));
     }
+    console.log(util.inspect(program, false, null, true));
   }
 };
 
