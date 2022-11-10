@@ -1,8 +1,10 @@
 import {
   BlockStatement,
   BooleanExpression,
+  CallExpression,
   Expression,
   ExpressionStatement,
+  FunctionLiteralExpression,
   IdentifierExpression,
   IfExpression,
   InfixExpression,
@@ -38,6 +40,7 @@ const precedences: Record<string, Precedence> = {
   MINUS: Precedence.SUM,
   SLASH: Precedence.PRODUCT,
   ASTERISK: Precedence.PRODUCT,
+  LPAREN: Precedence.CALL,
 };
 
 const infixOperators = [
@@ -50,7 +53,7 @@ const infixOperators = [
   "LT",
   "GT",
 ] as const;
-type InfixOperator = typeof infixOperators[number];
+type InfixOperator = typeof infixOperators[number] | "LPAREN";
 
 const isInfixOperator = (value: string): value is InfixOperator => {
   return infixOperators.includes(value as any);
@@ -79,10 +82,12 @@ export class Parser {
     this.registerPrefix("FALSE", this.parseBooleanLiteral.bind(this));
     this.registerPrefix("LPAREN", this.parseGroupedExpression.bind(this));
     this.registerPrefix("IF", this.parseIfExpression.bind(this));
+    this.registerPrefix("FUNCTION", this.parseFunctionLiteral.bind(this));
     prefixOperators.forEach((operator) => {
       this.registerPrefix(operator, this.parsePrefixExpression.bind(this));
     });
 
+    this.registerInfix("LPAREN", this.parseCallExpression.bind(this));
     infixOperators.forEach((operator) => {
       this.registerInfix(operator, this.parseInfixExpresion.bind(this));
     });
@@ -238,6 +243,74 @@ export class Parser {
       alternative = this.parseBlockStatement();
     }
     return { type: "if", token, condition, consequence, alternative };
+  }
+
+  parseCallExpression(fn: Expression): CallExpression | undefined {
+    if (fn.type === "identifier" || fn.type === "function") {
+      const args = this.parseCallArguments();
+      if (args)
+        return {
+          type: "call",
+          token: this.curToken,
+          function: fn,
+          arguments: args,
+        };
+    }
+  }
+
+  parseCallArguments(): Expression[] | undefined {
+    const args: Expression[] = [];
+    if (this.peekTokenIs("RPAREN")) {
+      this.nextToken();
+      return args;
+    }
+    this.nextToken();
+    const exp = this.parseExpression(Precedence.LOWEST);
+    if (exp) args.push(exp);
+
+    while (this.peekTokenIs("COMMA")) {
+      this.nextToken();
+      this.nextToken();
+      const exp = this.parseExpression(Precedence.LOWEST);
+      if (exp) args.push(exp);
+    }
+
+    if (!this.expectPeek("RPAREN")) return undefined;
+    return args;
+  }
+
+  parseFunctionLiteral(): FunctionLiteralExpression | undefined {
+    const token = this.curToken;
+    if (!this.expectPeek("LPAREN")) return undefined;
+    const parameters = this.parseFunctionParameters() ?? [];
+    if (!this.expectPeek("LBRACE")) return undefined;
+    const body = this.parseBlockStatement();
+    if (body) return { type: "function", body, parameters, token };
+  }
+
+  parseFunctionParameters(): IdentifierExpression[] | undefined {
+    const identifiers: IdentifierExpression[] = [];
+    if (this.peekTokenIs("RPAREN")) {
+      this.nextToken();
+      return identifiers;
+    }
+    this.nextToken();
+    identifiers.push({
+      type: "identifier",
+      token: this.curToken,
+      value: this.curToken.literal,
+    });
+    while (this.peekTokenIs("COMMA")) {
+      this.nextToken();
+      this.nextToken();
+      identifiers.push({
+        type: "identifier",
+        token: this.curToken,
+        value: this.curToken.literal,
+      });
+    }
+    if (!this.expectPeek("RPAREN")) return undefined;
+    return identifiers;
   }
 
   parseBlockStatement(): BlockStatement | undefined {

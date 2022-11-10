@@ -49,13 +49,29 @@ export type IfExpression = {
   alternative?: BlockStatement;
 };
 
+export type FunctionLiteralExpression = {
+  type: "function";
+  token: Token;
+  parameters: IdentifierExpression[];
+  body: BlockStatement;
+};
+
+export type CallExpression = {
+  type: "call";
+  token: Token;
+  function: FunctionLiteralExpression | IdentifierExpression;
+  arguments: Expression[];
+};
+
 export type Expression =
   | IdentifierExpression
   | IntegerLiteralExpression
   | PrefixExpression
   | InfixExpression
   | BooleanExpression
-  | IfExpression;
+  | IfExpression
+  | FunctionLiteralExpression
+  | CallExpression;
 
 // Statements
 
